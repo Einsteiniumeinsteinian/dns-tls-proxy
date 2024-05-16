@@ -88,13 +88,17 @@ The project also includes a `script` folder with a bash scripts that sends TCP/U
 
 - Privacy Trade-off: While DoT protects the DNS queries from the ISP or local network eavesdroppers, you still need to trust the upstream DNS resolver you're using.
 
-- DoS Attacks: Be aware that DNS proxies can be targeted by denial-of-service (DoS) attacks.
+- DoS Attacks: Be aware that DNS proxies can be targeted by denial-of-service (DoS) attacks. Blacklisting Malicious Domains and applying rate limiting etc can help.
 
 ## Improvements
 
 - Caching: DNS caching to store the results of recent DNS lookups. When the same query is made again, the proxy can quickly return the cached answer instead of contacting the authoritative DNS server. This improves performance and reduces network traffic. Also, vulnerabilities like cache poisoning, where an attacker could manipulate cached DNS records should be prevented.
 
 - Secrets/Envs: Better handling of secrets and config files using secret and config managers.
+
+- Blacklisting Malicious Domains.
+
+- Health check to properly monitor the DOT.
 
 ## Deployment Strategies (Integration)
 

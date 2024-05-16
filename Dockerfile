@@ -8,7 +8,8 @@ WORKDIR /app
 COPY go.mod go.sum ./
 
 # Download dependencies
-RUN go mod download
+ARG CACHEBUST=1
+RUN go mod download && go mod verify
 
 # Copy the source code into the container
 COPY . .
@@ -17,7 +18,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o dns-proxy
 
 # Use a lightweight Alpine image as the base image for the final container
-FROM alpine:latest
+FROM alpine:3.18
 
 RUN apk update && apk upgrade
 
