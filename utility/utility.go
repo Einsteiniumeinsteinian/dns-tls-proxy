@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"os"
 )
 
 const (
@@ -15,11 +14,8 @@ const (
 	tlsReadTimeout      = 5 * time.Second          // TLS read timeout
 )
 
-var (
-	dnsServerHost       =  os.Getenv("DNS_SERVER_HOST")
-	dnsServerHostName   =  os.Getenv("DNS_SERVER_HOST_NAME")
-	dnsServerPortTLS    = os.Getenv("DNS_SERVER_PORT_TLS")
-)
+var ResolveDNSOverTLS = resolveDNSOverTLS
+
 type TLSDialer func(network, addr string, config *tls.Config) (*tls.Conn, error)
 
 // CustomError represents a custom error type with additional context.
@@ -75,10 +71,10 @@ func setTLSDeadline(conn *tls.Conn, timeout time.Duration) error {
 	return nil
 }
 
-func ResolveDNSOverTLS(buf []byte, dialer TLSDialer, config *tls.Config) ([]byte, error) {
+func resolveDNSOverTLS(buf []byte, dialer TLSDialer, config *tls.Config) ([]byte, error) {
 	conn, err := establishTLSConnection(dialer, config)
 	if err != nil {
-		return nil, err // No need to wrap this error
+		return nil, err
 	}
 	defer conn.Close()
 

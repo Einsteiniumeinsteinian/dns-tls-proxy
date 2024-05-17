@@ -1,0 +1,145 @@
+// package proxy
+
+// import (
+// 	"crypto/tls"
+// 	"errors"
+// 	"net"
+// 	"os"
+// 	"sync"
+// 	"testing"
+// 	"time"
+
+// 	"github.com/Einsteiniumeinsteinian/dns-over-tls-proxy/utility"
+// 	"github.com/stretchr/testify/assert"
+// 	"github.com/stretchr/testify/mock"
+// )
+
+// // Mock for the utility.ResolveDNSOverTLS function
+// type MockResolver struct {
+// 	mock.Mock
+// }
+
+// func (m *MockResolver) ResolveDNSOverTLS(data []byte, dialer utility.TLSDialer, config *tls.Config) ([]byte, error) {
+// 	args := m.Called(data, dialer, config)
+// 	return args.Get(0).([]byte), args.Error(1)
+// }
+
+// // Save the original function so we can restore it after tests
+// var originalResolveDNSOverTLS = utility.ResolveDNSOverTLS
+
+// func TestMain(m *testing.M) {
+// 	// Restore the original function after all tests are done
+// 	defer func() {
+// 		utility.ResolveDNSOverTLS = originalResolveDNSOverTLS
+// 	}()
+// 	os.Exit(m.Run())
+// }
+
+// func TestStartUDPListener(t *testing.T) {
+// 	// Mock the os.Getenv function to return a fixed port for testing
+// 	os.Setenv("PORT_UDP", "9999")
+
+// 	var wg sync.WaitGroup
+// 	wg.Add(1)
+
+// 	go func() {
+// 		StartUDPListener(&wg)
+// 	}()
+
+// 	time.Sleep(1 * time.Second) // Wait a bit for the server to start
+
+// 	// Now test sending a packet to the UDP server
+// 	conn, err := net.Dial("udp", "127.0.0.1:9999")
+// 	assert.NoError(t, err)
+// 	defer conn.Close()
+
+// 	_, err = conn.Write([]byte("test"))
+// 	assert.NoError(t, err)
+
+// 	wg.Wait()
+// }
+
+// func TestHandleUDPConnection(t *testing.T) {
+// 	// Set up mock resolver
+// 	mockResolver := new(MockResolver)
+// 	utility.ResolveDNSOverTLS = mockResolver.ResolveDNSOverTLS
+
+// 	// Test data
+// 	requestData := []byte("test")
+// 	responseData := []byte{0, 4, 't', 'e', 's', 't'}
+
+// 	// Expectations
+// 	mockResolver.On("ResolveDNSOverTLS", append([]byte{0, byte(len(requestData))}, requestData...), mock.Anything, mock.Anything).Return(responseData, nil)
+
+// 	// Mock connection
+// 	pc := new(MockPacketConn)
+// 	addr := new(MockAddr)
+// 	pc.On("WriteTo", responseData[2:], addr).Return(0, nil)
+
+// 	handleUDPConnection(pc, requestData, addr)
+
+// 	// Assert expectations
+// 	mockResolver.AssertExpectations(t)
+// 	pc.AssertExpectations(t)
+// }
+
+// func TestSendErrorResponseUDP(t *testing.T) {
+// 	pc := new(MockPacketConn)
+// 	addr := new(MockAddr)
+// 	err := errors.New("test error")
+
+// 	expectedErrorMessage := []byte("DNS resolution failed: test error")
+// 	pc.On("WriteTo", expectedErrorMessage, addr).Return(0, nil)
+
+// 	sendErrorResponseUDP(pc, addr, err)
+
+// 	pc.AssertExpectations(t)
+// }
+
+// // MockPacketConn mocks the net.PacketConn interface
+// type MockPacketConn struct {
+// 	mock.Mock
+// }
+
+// func (m *MockPacketConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
+// 	args := m.Called(p)
+// 	return args.Int(0), args.Get(1).(net.Addr), args.Error(2)
+// }
+
+// func (m *MockPacketConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
+// 	args := m.Called(p, addr)
+// 	return args.Int(0), args.Error(1)
+// }
+
+// func (m *MockPacketConn) Close() error {
+// 	return nil
+// }
+
+// func (m *MockPacketConn) LocalAddr() net.Addr {
+// 	return nil
+// }
+
+// func (m *MockPacketConn) SetDeadline(t time.Time) error {
+// 	return nil
+// }
+
+// func (m *MockPacketConn) SetReadDeadline(t time.Time) error {
+// 	return nil
+// }
+
+// func (m *MockPacketConn) SetWriteDeadline(t time.Time) error {
+// 	return nil
+// }
+
+// // MockAddr mocks the net.Addr interface
+// type MockAddr struct {
+// 	mock.Mock
+// }
+
+// func (m *MockAddr) Network() string {
+// 	return "udp"
+// }
+
+// func (m *MockAddr) String() string {
+// 	return "127.0.0.1:9999"
+// }

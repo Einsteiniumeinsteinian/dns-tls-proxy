@@ -4,25 +4,24 @@ import (
 	"crypto/tls"
 	"log"
 	"net"
-	"os"
 	"sync"
 
 	"github.com/Einsteiniumeinsteinian/dns-over-tls-proxy/utility"
 )
 
 var (
-	portUDP       = os.Getenv("PORT_UDP")
 	maxPacketSize = 1024 // maximum DNS packet size
 )
 
+// StartTCPListener initializes a UDP server that listens on the specified port.
 func StartUDPListener(wg *sync.WaitGroup) {
 	defer wg.Done()
-	pc, err := net.ListenPacket("udp", ":"+portUDP)
+	pc, err := net.ListenPacket("udp", ":"+utility.PortUDP)
 	if err != nil {
 		log.Fatalf("Failed to start UDP server: %v\n", err)
 	}
 	defer pc.Close()
-	log.Printf("UDP server listening on port %s...\n", portUDP)
+	log.Printf("UDP server listening on port %s...\n", utility.PortUDP)
 	for {
 		buf := make([]byte, maxPacketSize)
 		n, addr, err := pc.ReadFrom(buf)
@@ -34,6 +33,7 @@ func StartUDPListener(wg *sync.WaitGroup) {
 	}
 }
 
+// HandleTCPConnection handles incoming UDP connections for DNS-over-TLS requests.
 func handleUDPConnection(pc net.PacketConn, buf []byte, addr net.Addr) {
 	log.Printf("Received UDP packet\n")
 	newBuf := []byte{0, byte(len(buf))}

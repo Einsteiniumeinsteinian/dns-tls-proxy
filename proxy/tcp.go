@@ -3,25 +3,21 @@ package proxy
 import (
 	"crypto/tls"
 	"io"
-	"os"
 	"log"
 	"net"
 	"sync"
 	"github.com/Einsteiniumeinsteinian/dns-over-tls-proxy/utility"
 )
 
-var (
-	PortTCP             = os.Getenv("PORT_TCP")
-)
-
+// StartTCPListener initializes a TCP server that listens on the specified port.
 func StartTCPListener(wg *sync.WaitGroup) {
 	defer wg.Done()
-	ln, err := net.Listen("tcp", ":"+PortTCP)
+	ln, err := net.Listen("tcp", ":"+utility.PortTCP)
 	if err != nil {
 		log.Fatalf("Failed to start TCP server: %v\n", err)
 	}
 	defer ln.Close()
-	log.Printf("TCP server listening on port %s...\n", PortTCP)
+	log.Printf("TCP server listening on port %s...\n", utility.PortTCP)
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
@@ -32,7 +28,7 @@ func StartTCPListener(wg *sync.WaitGroup) {
 	}
 }
 
-
+// HandleTCPConnection handles incoming TCP connections for DNS-over-TLS requests.
 func HandleTCPConnection(conn net.Conn) {
 	defer conn.Close()
 	buf := make([]byte, maxPacketSize)
