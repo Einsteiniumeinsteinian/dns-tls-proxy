@@ -36,8 +36,8 @@ RUN chown appuser:appgroup /app/dns-proxy && \
     chmod 755 /app/dns-proxy
 
 # Expose TCP and UDP ports
-EXPOSE 53
-EXPOSE 54
+EXPOSE 5365
+EXPOSE 5460
 
 # Switch to non-root user
 USER appuser

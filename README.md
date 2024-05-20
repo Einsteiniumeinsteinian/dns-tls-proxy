@@ -36,6 +36,14 @@ UDP Enhancement: For UDP queries, the proxy handles packet size adjustments to e
 
 ## Getting Started
 
+### Local Startup
+
+Ensure the presence of the .env file.
+
+```bash
+go run main.go
+```
+
 ### Containerization
 
 ```bash
@@ -44,24 +52,16 @@ docker compose up -d
 
 ## Testing
 
-To perform unit test:
-
-```go
-go test ./...
-```
-
-To perform integration tests we can use dig.
-
 - Test TCP DNS resolution:
 
 ```bash
-dig @127.0.0.1 -p < given port in docker-compose.yml file > google.com +tcp
+dig @127.0.0.1 -p < given port in docker-compose.yml file or .env if run locally > google.com +tcp
 ```
 
 - Test UDP DNS resolution:
 
 ```bash
-dig @127.0.0.1 -p < given port in docker-compose.yml file > google.com
+dig @127.0.0.1 -p < given port in docker-compose.yml file .env if run locally > google.com
 ```
 
 The project also includes a `script` folder with a bash scripts that sends TCP/UDP requests every second in order to validate the server's concurrency.
@@ -88,7 +88,7 @@ The project also includes a `script` folder with a bash scripts that sends TCP/U
 
 - Privacy Trade-off: While DoT protects the DNS queries from the ISP or local network eavesdroppers, you still need to trust the upstream DNS resolver you're using.
 
-- DoS Attacks: Be aware that DNS proxies can be targeted by denial-of-service (DoS) attacks. Blacklisting Malicious Domains and applying rate limiting etc can help.
+- DoS Attacks: DNS proxies can be targeted by denial-of-service (DoS) attacks. Blacklisting Malicious Domains and applying rate limiting can help.
 
 ## Improvements
 
@@ -100,13 +100,17 @@ The project also includes a `script` folder with a bash scripts that sends TCP/U
 
 - Health check to properly monitor the DOT.
 
+- Tests: Unit tests and integration tests to ensure proper functionalit and edge cases.
+
+- Proper logging.
+
 ## Deployment Strategies (Integration)
 
 The application can be deployed on kubernetes or other microservice orchestrators in a variety of ways depending on requirements:
 
 - Using DOT as an Ambassador:
 
-My approach would be to utilize the DOT as an ambassador and expose it as a service. If a pod needs to resolve a domain name, the pod sends the DNS query to one of the DOT pods. The DOT pod checks if the DNS record is already on cached (if caching feature is added), if it is not, the DoT proxy establishes a secure, encrypted DNS-over-TLS connection with the external DNS resolver (e.g., 1.1.1.1). It forwards the query to the resolver and gets the IP address back. The DoT proxy caches the response and sends the resolved IP address back to the original requesting pod. This would reduce cost of running it as a side car on every pod and would also eliminate single point of failure. However, the network latency might not be as efficient as some other approaches.
+My approach would be to utilize the DOT as an ambassador and expose it as a service. If a pod needs to resolve a domain name, the pod sends the DNS query to one of the DOT pods. The DOT pod checks if the DNS record is already cached (if caching feature is added), if it is not, the DoT proxy establishes a secure, encrypted DNS-over-TLS connection with the external DNS resolver (e.g., 1.1.1.1). It forwards the query to the resolver and gets the IP address back. The DoT proxy caches the response and sends the resolved IP address back to the original requesting pod. This would reduce cost of running it as a side car on every pod and would also eliminate single point of failure. However, the network latency might not be as efficient as some other approaches.
 
 ### Other Considerations
 

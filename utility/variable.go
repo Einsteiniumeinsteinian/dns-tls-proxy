@@ -26,38 +26,38 @@ func init() {
     // Load environment variables and handle errors
     var err error
 
-    dnsServerHost, err = getEnvOrDefault("DNS_SERVER_HOST")
+    dnsServerHost, err = GetEnvOrDefault("DNS_SERVER_HOST")
     if err != nil {
         log.Fatalf("Error loading DNS_SERVER_HOST: %v", err)
     }
 
-    dnsServerHostName, err = getEnvOrDefault("DNS_SERVER_HOST_NAME")
+    dnsServerHostName, err = GetEnvOrDefault("DNS_SERVER_HOST_NAME")
     if err != nil {
         log.Fatalf("Error loading DNS_SERVER_HOST_NAME: %v", err)
     }
 
-    dnsServerPortTLS, err = getEnvOrDefault("DNS_SERVER_PORT_TLS")
+    dnsServerPortTLS, err = GetEnvOrDefault("DNS_SERVER_PORT_TLS")
     if err != nil {
         log.Fatalf("Error loading DNS_SERVER_PORT_TLS: %v", err)
     }
 
-    PortTCP, err = getEnvOrDefault("PORT_TCP") 
+    PortTCP, err = GetEnvOrDefault("PORT_TCP") 
     if err != nil {
         log.Fatalf("Error loading PORT_TCP: %v", err)
     }
 
-    PortUDP, err = getEnvOrDefault("PORT_UDP") 
+    PortUDP, err = GetEnvOrDefault("PORT_UDP") 
     if err != nil {
         log.Fatalf("Error loading PORT_TCP: %v", err)
     }
 
-    UDP, _ = getEnvOrDefault("UDP") 
+    UDP, _ = GetEnvOrDefault("UDP") 
 
-    TCP, _ = getEnvOrDefault("TCP") 
+    TCP, _ = GetEnvOrDefault("TCP") 
 
 }
 
-func getEnvOrDefault(key string) (string, error) {
+func GetEnvOrDefault(key string) (string, error) {
     value, exists := os.LookupEnv(key)
     if !exists {
         return "", fmt.Errorf("environment variable %s not set", key) 
